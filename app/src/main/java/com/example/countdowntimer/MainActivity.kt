@@ -2,6 +2,7 @@ package com.example.countdowntimer
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
@@ -28,26 +29,30 @@ class MainActivity : AppCompatActivity() {
             CountdownTimerTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
+                    Greeting()
                 }
             }
         }
     }
 }
 
+val TAG = "MainActivity"
+
 @Composable
-fun Greeting(name: String) {
-    var endAngle by remember { mutableStateOf(270f) }
-    val endTime = 40000L;
+fun Greeting() {
+    var numberOfSplits by remember { mutableStateOf(270f) }
+    val endTime = 10000L
+    val totalNumberOfSplits = endTime / 1000L
     object : CountDownTimer(endTime, 1000) {
         override fun onTick(remainingSecs: Long) {
-            endAngle = ((remainingSecs * 360) / endTime).toFloat()
+            numberOfSplits = (remainingSecs / 1000L).toFloat()
         }
 
         override fun onFinish() {
-            endAngle = 0f
+            numberOfSplits = 0f
         }
     }.start()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -57,18 +62,27 @@ fun Greeting(name: String) {
     ) {
         Box(
             modifier = Modifier
-                .size(350.dp)
+                .size(300.dp)
                 .drawBehind {
-                    drawArc(
-                        Brush.linearGradient(listOf(Color.Red, Color.Black)),
-                        -90f,
-                        endAngle,
-                        false,
-                        style = Stroke(
-                            width = 70f,
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 20f))
+                    for (i in 0 until totalNumberOfSplits) {
+                        val eachAngle = 360f / totalNumberOfSplits
+                        val startAngle = -90f + (i * eachAngle)
+                        val endAngle = eachAngle - 3
+                        drawArc(
+                            if (i > totalNumberOfSplits - numberOfSplits) Brush.linearGradient(
+                                listOf(
+                                    Color.White,
+                                    Color.White
+                                )
+                            ) else Brush.linearGradient(
+                                listOf(Color.Red, Color.Green)
+                            ),
+                            (startAngle),
+                            (endAngle),
+                            false,
+                            style = Stroke(width = 70f)
                         )
-                    )
+                    }
                 },
 
             )
@@ -79,6 +93,6 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     CountdownTimerTheme {
-        Greeting("Android")
+        Greeting()
     }
 }
